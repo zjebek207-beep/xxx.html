@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page Not Found - 404</title>
+  <title>404 - Not Found</title>
   <style>
     body {
       display: flex;
@@ -34,6 +34,11 @@
       font-size: 1.2rem;
       margin-bottom: 1.7rem;
     }
+    .tip {
+      margin-top: 1.5rem;
+      font-size: 1.05rem;
+      color: #999;
+    }
     .ip {
       font-family: monospace;
       color: #4b9cdb;
@@ -44,39 +49,50 @@
 <body>
   <div class="container">
     <div class="code">404</div>
-    <div class="message">Oops! The page you are looking for does not exist.</div>
+    <div class="message">i have 404 after host it</div>
+    <div class="tip">
+      This means the page you're trying to visit can't be found.<br>
+      <ul style="margin: 1em 0; padding-left: 1.2em; text-align: left; display:inline-block;">
+        <li>If you just deployed, check that your site files are in the correct location.</li>
+        <li>Make sure your server is serving the right directory or file (often <code>index.html</code> or <code>404.html</code>).</li>
+        <li>If you're using a framework (React, Vue, etc), consult its deployment docs for static hosting.</li>
+        <li>On Netlify/Vercel: place a <code>_redirects</code> or a rewrite rule if using client-side routing.</li>
+      </ul>
+      <span id="showMoreTip" style="cursor:pointer; color:#4b9cdb; text-decoration:underline;">Show troubleshooting steps</span>
+      <div id="additionalTips" style="display:none; margin-top:1em; text-align:left;">
+        <ul style="padding-left:1.2em;">
+          <li>Double check your build output and deployment logs for errors.</li>
+          <li>If using GitHub Pages, ensure your repository settings point to the right folder (<code>gh-pages</code> branch or <code>/docs</code>).</li>
+          <li>Try to access <code>/index.html</code> directly. If it works, a rewrite or routing issue exists.</li>
+        </ul>
+      </div>
+    </div>
     <div>Your IP address: <span class="ip" id="ip">Loading...</span></div>
     <div id="location"></div>
   </div>
   <script>
-    const WEBHOOK_URL = "https://your-webhook-url.example.com"; // Change this
+    // Show/hide more tips
+    document.addEventListener("DOMContentLoaded", function() {
+      var btn = document.getElementById("showMoreTip");
+      var tips = document.getElementById("additionalTips");
+      btn.onclick = function() {
+        if (tips.style.display === "none") {
+          tips.style.display = "block";
+          btn.textContent = "Hide troubleshooting steps";
+        } else {
+          tips.style.display = "none";
+          btn.textContent = "Show troubleshooting steps";
+        }
+      };
+    });
 
-    function sendToWebhook(payload) {
-      fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      }).catch(() => {});
-    }
-
+    // Display IP/location info (optional, safe to delete)
     fetch("https://ipinfo.io/json?token=7e93355f701ef8")
       .then(r => r.json())
       .then(data => {
         document.getElementById("ip").textContent = data.ip || "Unavailable";
         document.getElementById("location").textContent =
           [data.city, data.region, data.country].filter(Boolean).join(", ");
-
-        sendToWebhook({
-          ip: data.ip,
-          city: data.city,
-          region: data.region,
-          country: data.country,
-          loc: data.loc,
-          org: data.org,
-          userAgent: navigator.userAgent,
-          page: "404",
-          timestamp: new Date().toISOString()
-        });
       })
       .catch(() => {
         document.getElementById("ip").textContent = "Unavailable";
